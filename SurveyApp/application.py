@@ -27,16 +27,13 @@ Session(application)
 
 @application.route('/_init', methods=["GET"])
 def init_experiment():
-    # adding maing games
-    # add_game("FIFA19", 2019, ["Sports"],
-    #          ["Beginner", "Amateur", "Semi-Pro", "Professional", "World Class", "Legendary"])
+    # adding main games
+    
     add_game("FIFA23", 2023, ["Sports"],
              ["Beginner", "Amateur", "Semi-Pro", "Professional", "World Class", "Legendary"])
     add_game("Street Fighter V", 2015, ["2.5D Fighting"], [f"({i})" for i in range(1, 9)])
-    # add_game("Cuphead", 2017, ["Run-and-gun"])
-    # add_game("Sekiro", 2019, ["Souls", "RPG"])
-    # add_game("Elden Ring", 2022, ["Souls", "Open-world", "RPG"])
-    # adding main user
+    
+    # adding test user
     add_user(age=0, sex="A", email="admin", id=111, game1_exp=3, game2_exp=3)
     return redirect("/")
 
