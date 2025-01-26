@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Registration</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='questions.css') }}">
+</head>
+<body>
+{% include 'flash_messages.html' %}
+<div class="container mt-4">
+    <h1>New User</h1>
+    {% include 'flash_messages.html' %}
+    <form id="user-form" method="POST">
+        {{ form.csrf_token }}
+        <div class="form-group">
+            <label for="{{ form.age.id }}">Age</label>
+            {{ form.age(class="form-control") }}
+        </div>
+        <div class="form-group">
+            <label for="{{ form.sex.id }}">Sex</label>
+            {{ form.sex(class="form-control") }}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.email.id }}">Email</label>
+            {{ form.email(class="form-control") }}
+        </div>
+
+        {% for question, image_src in questions.items() %}
+            <div class="form-group">
+                <div class="range" style="width: 100%;">
+                    <img src="{{ url_for('static', filename=image_src) }}"
+                         style="height: 100pt; margin-right: 20pt;">
+                    <div class="range-slider">
+                        <label class="survey-label"
+                               for="{{ form[question].id }}">{{ form[question].label(id=question+'-label') }}
+                        </label>
+                        {{ form[question](class="question") }}
+                        <div class='sliderticks'>
+                            {% for i, choice in enumerate(choices) %}
+                                <span id='{{ question }}-choice-{{ i }}'>{{ choice }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        {{ form.submit(class="btn btn-info btn-lg") }}
+    </form>
+</div>
+
+<script src="{{ url_for('static', filename='js/answers_range.js') }}"></script>
+</body>
+</html>

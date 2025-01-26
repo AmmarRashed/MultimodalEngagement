@@ -1,0 +1,9 @@
+SELECT
+    g.title AS game_name,
+    lvl.name AS level_name
+FROM
+    game AS g
+JOIN
+        game_level_association AS gla ON g.id = gla.game_id
+JOIN
+        level AS lvl ON gla.level_id = lvl.id;

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add New Game</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+</head>
+<body>
+<div class="container mt-4">
+    <h1>Add a New Game</h1>
+    {% include 'flash_messages.html' %}
+    <form id="game-form" method="POST" action="/game">
+        {{ form.csrf_token }}
+        <div class="form-group">
+            <label for="{{ form.title.id }}">Title</label>
+            {{ form.title(class="form-control") }}
+        </div>
+        <div class="form-group">
+            <label for="{{ form.year.id }}">Year</label>
+            {{ form.year(class="form-control") }}
+        </div>
+        <div class="form-group">
+            <label for="{{ form.genres.id }}">Genres</label>
+            {{ form.genres(id="genres", style="width: 100%;") }}
+        </div>
+        {{ form.submit(class="btn btn-info btn-lg") }}
+    </form>
+</div>
+<script>
+    $("#genres").select2({
+        tags: true
+    });
+</script>
+</body>
+</html>

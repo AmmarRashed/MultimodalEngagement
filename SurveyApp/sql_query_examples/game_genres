@@ -1,0 +1,9 @@
+SELECT
+    g.title AS game_name,
+    gn.name AS genre_name
+FROM
+    game AS g
+JOIN
+        game_genre_association AS gga ON g.id = gga.game_id
+JOIN
+        genre AS gn ON gga.genre_id = gn.id;
