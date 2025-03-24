@@ -67,10 +67,11 @@ The complete dataset can be accessed via Kaggle:
 ## Citation
 
 If you use this dataset or code in your research, please cite:
-
 ```
 A. Rashed, S. Shirmohammadi and M. Hefeeda, "Descriptor: Multimodal Dataset for Player Engagement Analysis in Video Games (MultiPENG)," in IEEE Data Descriptions, doi: 10.1109/IEEEDATA.2025.3553097.
 ```
+You can access the full Data Descriptor manuscript at:
+[MultiPENG Paper](https://ieeexplore.ieee.org/document/10934747)
 
 ## Ethics and License
 
