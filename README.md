@@ -62,7 +62,7 @@ The dataset supports various research directions including:
 ## Dataset Access
 
 The complete dataset can be accessed via Kaggle:
-[MultiPENG Dataset on Kaggle](https://www.kaggle.com/datasets/multiPENG)
+[MultiPENG Dataset on Kaggle](https://www.kaggle.com/datasets/ammarrashed23/multimodal-player-engagement/)
 
 ## Citation
 
