@@ -55,7 +55,7 @@ def scale_sequences(sequences, scaler=MinMaxScaler(), fit_scaler=True):
 class MultiModalDataset(Dataset):
     target_mappings = {t: i for i, t in enumerate(["engagement", "interest", "stress", "excitement"], start=2)}
 
-    def __init__(self, root, modalities=["EEG", "EYE", "OpenFace"], targets=["engagement"],
+    def __init__(self, root, modalities: dict, targets=["engagement"],
                  participants=None,
                  class_mappings={0: 0, 1: 0, 2: 0, 3: 1, 4: 1},
                  scalers=None,

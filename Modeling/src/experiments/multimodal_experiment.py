@@ -6,28 +6,61 @@ from models.multimodal_fusion import *
 
 
 class MultimodalExperiment:
-    def __init__(self, splits_path, device=None, model_kwargs={"dropout": 0.3, "hidden_dim": 128}):
-        self.splits_path = splits_path
-        splits_df = pd.read_csv(splits_path)
+    DEFAULT_MODALITIES = ["EEG", "EYE", "OpenFace"]
+
+    def __init__(self, dataset_root, outer_fold: str, device=None, model_kwargs={"dropout": 0.3, "hidden_dim": 128},
+                 modalities=None,
+                 inner_fold: int = 0
+                 ):
+        """
+
+        :param dataset_root:
+        :param outer_fold:
+        :param device:
+        :param model_kwargs:
+        :param modalities: {modality: (drop column flag, list of columns)}
+        :param inner_fold:
+        """
+        if modalities is None:
+            modalities = self.DEFAULT_MODALITIES
+        self.dataset_root = Path(dataset_root)
+        self.splits_path = self.dataset_root / "splits" / outer_fold / f"{inner_fold}.csv"
+        splits_df = pd.read_csv(self.splits_path)
         self.splits_df = splits_df
         if device is None:
             device = "cuda" if torch.cuda.is_available() else "cpu"
         self.device = device
-        self.train_dataset, self.train_dataloader = self.init_dataloader("train")
+        self.modalities = modalities
+        self.train_dataset, self.train_dataloader = self.init_dataloader("train", modalities=modalities)
         self.val_dataset, self.val_dataloader = self.init_dataloader("validation", scalers=self.train_dataset.scalers,
-                                                                     fit_scaler=False, shuffle=False)
+                                                                     fit_scaler=False, shuffle=False,
+                                                                     modalities=modalities
+                                                                     )
         self.test_dataset, self.test_dataloader = self.init_dataloader("test", scalers=self.train_dataset.scalers,
-                                                                       fit_scaler=False, shuffle=False)
+                                                                       fit_scaler=False, shuffle=False,
+                                                                       modalities=modalities
+                                                                       )
         self.pos_weight = torch.tensor(
             sum(self.train_dataset.y_transformed == 0) / sum(self.train_dataset.y_transformed == 1)).squeeze()
 
-        self.model = self.init_model(model_kwargs)
+        self.model = self.init_model(**model_kwargs)
 
-    def init_dataloader(self, split, scalers=None, fit_scaler=True, shuffle=True):
+    def init_dataloader(self, split, scalers=None, fit_scaler=True, shuffle=True, modalities=None):
+        """
+
+        :param split:
+        :param scalers:
+        :param fit_scaler:
+        :param shuffle:
+        :param modalities: {modality: (drop column flag, list of columns)}
+        :return:
+        """
+        if modalities is None:
+            modalities = self.DEFAULT_MODALITIES
         participants = self.splits_df[self.splits_df.Split == split].ParticipantId.unique()
         dataset = MultiModalDataset(
-            "../data/Dataset/Samples/",
-            modalities=["EEG", "EYE", "OpenFace"],
+            self.dataset_root / "Samples",
+            modalities=modalities,
             participants=participants,
             targets=["engagement"],
             scalers=scalers,
@@ -42,7 +75,7 @@ class MultimodalExperiment:
         )
         return dataset, dataloader
 
-    def init_model(self, kwargs):
+    def init_model(self, **kwargs):
         input_dims = [self.train_dataset.X[i][0].shape[-1] for i in range(len(self.train_dataset.X))]
         model = MultimodalFusion(input_dims, **kwargs)
         model.to(self.device)

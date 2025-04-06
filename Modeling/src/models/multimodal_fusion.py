@@ -1,3 +1,6 @@
+import os
+from pathlib import Path
+
 import numpy as np
 import torch
 import torch.nn.functional as F
@@ -26,23 +29,22 @@ class MultimodalFusion(nn.Module):
         super().__init__()
         # input_dims should be a tuple of feature dimensions for each modality
         # e.g., (70, eye_features, pose_features)
-        self.eeg_encoder = ModalityEncoder(input_dims[0], hidden_dim)
-        self.eye_encoder = ModalityEncoder(input_dims[1], hidden_dim)
-        self.pose_encoder = ModalityEncoder(input_dims[2], hidden_dim)
+        self.encoders = nn.ModuleList([
+            ModalityEncoder(d, hidden_dim) for d in input_dims
+        ])
 
         self.fusion = nn.Sequential(
-            nn.Linear(hidden_dim * 3, hidden_dim),
+            nn.Linear(hidden_dim * len(input_dims), hidden_dim),
             nn.ReLU(),
             nn.Dropout(dropout),
             nn.Linear(hidden_dim, 1)
         )
 
     def forward(self, x_tuple):
-        eeg_feat = self.eeg_encoder(x_tuple[0])
-        eye_feat = self.eye_encoder(x_tuple[1])
-        pose_feat = self.pose_encoder(x_tuple[2])
-
-        combined = torch.cat([eeg_feat, eye_feat, pose_feat], dim=1)
+        features = [
+            self.encoders[i](x) for i, x in enumerate(x_tuple)
+        ]
+        combined = torch.cat(features, dim=1)
         return self.fusion(combined)
 
 
@@ -63,6 +65,10 @@ def train_model(model, train_loader, val_loader, device,
         patience: Early stopping patience
         learning_rate: Learning rate for optimizer
     """
+    best_model_path = Path(best_model_path)
+    parent_dir = best_model_path.parent
+    if parent_dir.stem:
+        os.makedirs(parent_dir, exist_ok=True)
     model = model.to(device)
     criterion = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(pos_weight).to(device))
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
